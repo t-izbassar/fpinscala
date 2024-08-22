@@ -108,26 +108,54 @@ object List: // `List` companion object. Contains functions for creating and wor
   def lengthViaFoldLeft[A](l: List[A]): Int =
     foldLeft(l, 0, (n, _) => n + 1)
 
-  def reverse[A](l: List[A]): List[A] = ???
+  def reverse[A](l: List[A]): List[A] =
+    foldLeft(
+      l,
+      Nil.asInstanceOf[List[A]],
+      (acc, a) => Cons(a, acc).asInstanceOf[List[A]]
+    )
 
-  def appendViaFoldRight[A](l: List[A], r: List[A]): List[A] = ???
+  def appendViaFoldRight[A](l: List[A], r: List[A]): List[A] =
+    foldRight(l, r, Cons(_, _))
 
   def concat[A](l: List[List[A]]): List[A] = ???
 
-  def incrementEach(l: List[Int]): List[Int] = ???
+  def incrementEach(l: List[Int]): List[Int] =
+    l match
+      case Nil        => Nil
+      case Cons(h, t) => Cons(h + 1, incrementEach(t))
 
-  def doubleToString(l: List[Double]): List[String] = ???
+  def doubleToString(l: List[Double]): List[String] =
+    l match
+      case Nil        => Nil
+      case Cons(h, t) => Cons(h.toString, doubleToString(t))
 
-  def map[A, B](l: List[A], f: A => B): List[B] = ???
+  def map[A, B](l: List[A], f: A => B): List[B] =
+    l match
+      case Nil        => Nil
+      case Cons(h, t) => Cons(f(h), map(t, f))
 
-  def filter[A](as: List[A], f: A => Boolean): List[A] = ???
+  def filter[A](as: List[A], f: A => Boolean): List[A] =
+    as match
+      case Nil        => Nil
+      case Cons(h, t) => if f(h) then Cons(h, filter(t, f)) else filter(t, f)
 
-  def flatMap[A, B](as: List[A], f: A => List[B]): List[B] = ???
+  def flatMap[A, B](as: List[A], f: A => List[B]): List[B] =
+    foldRight(as, Nil: List[B], (a, acc) => append(f(a), acc))
 
-  def filterViaFlatMap[A](as: List[A], f: A => Boolean): List[A] = ???
+  def filterViaFlatMap[A](as: List[A], f: A => Boolean): List[A] =
+    flatMap(as, a => if f(a) then List(a) else Nil)
 
-  def addPairwise(a: List[Int], b: List[Int]): List[Int] = ???
+  def addPairwise(a: List[Int], b: List[Int]): List[Int] = (a, b) match
+    case (Nil, _)                     => Nil
+    case (_, Nil)                     => Nil
+    case (Cons(ha, ta), Cons(hb, tb)) => Cons(ha + hb, addPairwise(ta, tb))
 
-  // def zipWith - TODO determine signature
+    // def zipWith - TODO determine signature
+  def zipWith[A, B, C](as: List[A], bs: List[B], f: (A, B) => C): List[C] =
+    (as, bs) match
+      case (Nil, _)                   => Nil
+      case (_, Nil)                   => Nil
+      case (Cons(a, ta), Cons(b, tb)) => Cons(f(a, b), zipWith(ta, tb, f))
 
   def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = ???
